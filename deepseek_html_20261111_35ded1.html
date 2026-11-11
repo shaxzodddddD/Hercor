@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HERCOR — AI Talent Marketplace</title>
+    <style>
+        /* ==========================================================================
+           1. GLOBAL SOZLAMALAR, VARIABLES VA ANIMATSIYALAR
+           ========================================================================== */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --primary: #1f2d3d;       /* Hercor Dark Blue */
+            --primary-light: #4a5b6d;
+            --accent: #d08a70;        /* Hercor Copper */
+            --accent-light: #f4c7b8;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #e2e8f0;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px -3px rgba(0,0,0,0.1);
+            --font: 'Inter', sans-serif;
+            --transition: all 0.3s ease;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* ==========================================================================
+           2. UMUMIY KOMPONENTLAR (BUTTONS, INPUTS, CARDS, TABLES)
+           ========================================================================== */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 20px; border-radius: var(--radius-sm);
+            font-weight: 600; font-size: 14px; cursor: pointer;
+            transition: var(--transition); border: none; outline: none;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); box-shadow: var(--shadow-md); }
+        .btn-accent { background: var(--accent); color: white; }
+        .btn-accent:hover { background: #b8735c; box-shadow: var(--shadow-md); }
+        .btn-outline { border: 1px solid var(--border); background: transparent; color: var(--text-main); }
+        .btn-outline:hover { background: var(--bg-main); border-color: var(--text-muted); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        .btn-block { width: 100%; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
+        .form-control {
+            width: 100%; padding: 12px 16px; border: 1px solid var(--border);
+            border-radius: var(--radius-sm); font-family: var(--font); font-size: 14px;
+            transition: var(--transition); background: var(--bg-card);
+        }
+        .form-control:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px rgba(208, 138, 112, 0.2); }
+        select.form-control { appearance: none; background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E"); background-repeat: no-repeat; background-position: right 16px top 50%; background-size: 10px auto; }
+
+        .card {
+            background: var(--bg-card); border-radius: var(--radius-md); padding: 24px;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+            animation: fadeIn 0.4s ease forwards;
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+        .card-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-pending { background: #fef3c7; color: #d97706; }
+        .badge-success { background: #d1fae5; color: #059669; }
+        .badge-danger { background: #fee2e2; color: #dc2626; }
+        .badge-primary { background: #e0e7ff; color: #4338ca; }
+        .badge-accent { background: #fdf2f8; color: #be185d; }
+
+        .table-responsive { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--bg-main); font-weight: 600; color: var(--text-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { font-size: 14px; }
+        tr:hover { background: #f1f5f9; }
+
+        /* ==========================================================================
+           3. NAVIGATSIYA (NAVBAR & LOGO)
+           ========================================================================== */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            padding: 12px 40px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1000;
+        }
+        
+        /* LOGO INTEGRATSIYASI */
+        .logo-wrapper { display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none; }
+        .logo-svg { width: 45px; height: 45px; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2)); transition: var(--transition); }
+        .logo-wrapper:hover .logo-svg { transform: scale(1.05); }
+        .logo-text-group { display: flex; flex-direction: column; justify-content: center; }
+        .logo-text-main { font-size: 22px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; line-height: 1; }
+        .logo-text-sub { font-size: 9px; font-weight: 700; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-top: 2px; }
+
+        .nav-links { display: flex; gap: 24px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 600; font-size: 14px; cursor: pointer; transition: var(--transition); }
+        .nav-links a:hover { color: var(--primary); }
+        .nav-user { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 800; }
+
+        /* ==========================================================================
+           4. SAHIFALAR (PAGES)
+           ========================================================================== */
+        .page-container { max-width: 1300px; margin: 40px auto; padding: 0 24px; min-height: calc(100vh - 200px); }
+
+        /* Bosh Sahifa (Landing) */
+        .hero { text-align: center; padding: 80px 20px; background: linear-gradient(180deg, #ffffff 0%, var(--bg-main) 100%); border-radius: var(--radius-lg); margin-bottom: 48px; border: 1px solid var(--border); }
+        .hero h1 { font-size: 52px; font-weight: 900; color: var(--primary); margin-bottom: 20px; letter-spacing: -1px; line-height: 1.1; }
+        .hero p { font-size: 18px; color: var(--text-muted); max-width: 700px; margin: 0 auto 32px; }
+        .hero-buttons { display: flex; gap: 16px; justify-content: center; }
+        
+        /* Dashboard Layout */
+        .dashboard-layout { display: grid; grid-template-columns: 280px 1fr; gap: 32px; align-items: start; }
+        .sidebar { background: var(--bg-card); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border); position: sticky; top: 90px; }
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; }
+        .sidebar-menu a { padding: 14px 16px; border-radius: var(--radius-sm); color: var(--text-muted); text-decoration: none; cursor: pointer; font-weight: 600; font-size: 14px; transition: var(--transition); display: flex; align-items: center; gap: 10px; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: #f1f5f9; color: var(--primary); }
+        .sidebar-menu a.active { border-left: 3px solid var(--accent); }
+
+        /* Grids */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+        /* AI Chat */
+        .chat-container { display: flex; flex-direction: column; height: 550px; background: var(--bg-main); border-radius: var(--radius-md); border: 1px solid var(--border); overflow: hidden; }
+        .chat-header { padding: 16px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+        .message { max-width: 75%; padding: 14px 18px; border-radius: var(--radius-md); font-size: 14px; line-height: 1.5; animation: fadeIn 0.3s ease; }
+        .message.ai { background: var(--bg-card); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .message.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .chat-input-area { padding: 16px; background: var(--bg-card); border-top: 1px solid var(--border); display: flex; gap: 12px; }
+        
+        /* Pricing Plans */
+        .plan-card { display: flex; flex-direction: column; height: 100%; position: relative; overflow: hidden; transition: var(--transition); }
+        .plan-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
+        .plan-price { font-size: 42px; font-weight: 900; color: var(--primary); margin: 20px 0; display: flex; align-items: baseline; justify-content: center; gap: 4px; }
+        .plan-price span { font-size: 16px; font-weight: 600; color: var(--text-muted); }
+        .plan-features { list-style: none; margin: 24px 0; flex: 1; }
+        .plan-features li { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .plan-features li:last-child { border-bottom: none; }
+        .plan-features li::before { content: '✓'; color: var(--success); font-weight: bold; font-size: 16px; }
+
+        /* Modals & Toast */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: center; z-index: 2000;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
+        .modal-content { background: var(--bg-card); padding: 32px; border-radius: var(--radius-lg); width: 100%; max-width: 500px; box-shadow: var(--shadow-lg); max-height: 90vh; overflow-y: auto; }
+        
+        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 3000; display: flex; flex-direction: column; gap: 12px; }
+        .toast {
+            background: var(--primary); color: white; padding: 16px 24px; border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 12px;
+            animation: slideIn 0.3s ease forwards; font-size: 14px; font-weight: 500; max-width: 350px;
+        }
+        .toast.success { background: var(--success); }
+        .toast.danger { background: var(--danger); }
+
+        /* Responsive */
+        @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .navbar { padding: 12px 20px; flex-direction: column; gap: 16px; }
+            .dashboard-layout { grid-template-columns: 1fr; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 36px; }
+            .sidebar { position: static; }
+            .nav-links { width: 100%; justify-content: center; flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= NAVBAR & LOGO ================= -->
+    <nav class="navbar">
+        <a class="logo-wrapper" onclick="navigate('home')">
+            <!-- SVG Logo (Mis va Ko'k 3D effekt) -->
+            <svg class="logo-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="blueMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5c7185" /><stop offset="30%" stop-color="#2c3e50" /><stop offset="70%" stop-color="#1a252f" /><stop offset="100%" stop-color="#3b5063" />
+                    </linearGradient>
+                    <linearGradient id="copperMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f4c7b8" /><stop offset="40%" stop-color="#cd8262" /><stop offset="80%" stop-color="#9e5232" /><stop offset="100%" stop-color="#d99b7a" />
+                    </linearGradient>
+                </defs>
+                <!-- H harfi -->
+                <path d="M 60 50 Q 50 50 50 60 L 50 150 Q 50 160 60 160 L 70 160 Q 80 160 80 150 L 80 110 L 110 110 L 110 150 Q 110 160 120 160 L 130 160 Q 140 160 140 150 L 140 60 Q 140 50 130 50 L 120 50 Q 110 50 110 60 L 110 90 L 80 90 L 80 60 Q 80 50 70 50 Z" fill="url(#blueMetal)" stroke="#1a252f" stroke-width="2"/>
+                <!-- Yuz profili -->
+                <path d="M 110 60 Q 140 50 160 70 Q 170 85 165 100 Q 160 110 150 115 Q 150 130 155 140 Q 160 155 145 160 L 120 160 Q 115 160 110 150 L 110 130 Q 120 120 120 100 Q 120 80 110 60 Z" fill="url(#copperMetal)" stroke="#9e5232" stroke-width="2"/>
+                <path d="M 125 140 Q 135 140 140 150" fill="none" stroke="#f4c7b8" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <div class="logo-text-group">
+                <span class="logo-text-main">HERCOR</span>
+                <span class="logo-text-sub">AI TALANTE</span>
+            </div>
+        </a>
+        <div class="nav-links" id="nav-links"></div>
+    </nav>
+
+    <!-- ================= ASOSIY KONTEYNER ================= -->
+    <div id="app" class="page-container"></div>
+
+    <!-- ================= MODAL VA TOAST ================= -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content" id="modal-content"></div>
+    </div>
+    <div id="toast-container"></div>
+
+    <script>
+        /* ==========================================================================
+           1. MA'LUMOTLAR BAZASI (LOCALSTORAGE BILAN ISHLAYDI)
+           ========================================================================== */
+        const DEFAULT_DB = {
+            users: [
+                { id: 1, name: "Admin", email: "admin@hercor.com", pass: "123", role: "admin", avatar: "A" },
+                { id: 2, name: "Bosh Direktor", email: "ceo@hercor.com", pass: "123", role: "ceo", avatar: "C" },
+                // Freelancerlar
+                { id: 3, name: "Aziza Karimova", email: "aziza@mail.com", pass: "123", role: "freelancer", skills: "Python, ML, NLP", earned: 1500, jobs: 5, rating: 4.8, growth: 25, avatar: "AK" },
+                { id: 4, name: "Jasur Toshmatov", email: "jasur@mail.com", pass: "123", role: "freelancer", skills: "React, Node.js", earned: 3200, jobs: 12, rating: 4.9, growth: 15, avatar: "JT" },
+                { id: 5, name: "Malika Rahimova", email: "malika@mail.com", pass: "123", role: "freelancer", skills: "Data Annotation, Uzbek", earned: 800, jobs: 8, rating: 4.5, growth: 45, avatar: "MR" },
+                { id: 6, name: "Sardor Aliyev", email: "sardor@mail.com", pass: "123", role: "freelancer", skills: "TensorFlow, PyTorch", earned: 4500, jobs: 20, rating: 5.0, growth: 10, avatar: "SA" },
+                // Kompaniyalar
+                { id: 7, name: "TechCorp", email: "tech@corp.com", pass: "123", role: "company", earned: 0, jobs: 0, avatar: "TC" },
+                { id: 8, name: "DataLab AI", email: "data@lab.com", pass: "123", role: "company", earned: 0, jobs: 0, avatar: "DL" }
+            ],
+            jobs: [
+                { id: 101, companyId: 7, title: "AI Model Trainer (NLP)", desc: "O'zbek tilidagi NLP modellari uchun mutaxassis kerak.", budget: 800, status: "open", assignedTo: null },
+                { id: 102, companyId: 8, title: "Data Annotator", desc: "Katta hajmdagi matnlarni annotatsiya qilish.", budget: 300, status: "open", assignedTo: null },
+                { id: 103, companyId: 7, title: "Computer Vision Expert", desc: "Rasm tanish algoritmini optimallashtirish.", budget: 1500, status: "open", assignedTo: null },
+                { id: 104, companyId: 8, title: "Prompt Engineer", desc: "GPT modellari uchun samarali promptlar yozish.", budget: 500, status: "open", assignedTo: null }
+            ],
+            payments: [
+                // type: 'plan' yoki 'job_payment'
+                { id: 1001, userId: 7, jobId: null, amount: 299, type: "plan", desc: "Pro Plan xaridi", receipt: "chek_123.jpg", status: "pending", date: "2026-11-11" }
+            ],
+            plans: [
+                { id: 1, name: "Basic Plan", price: 99, features: ["1 ta ish e'loni", "Oddiy qo'llab-quvvatlash", "AI skrining (5 rezyume)"] },
+                { id: 2, name: "Pro Plan", price: 299, features: ["5 ta ish e'loni", "24/7 qo'llab-quvvatlash", "AI skrining (50 rezyume)"] },
+                { id: 3, name: "Enterprise", price: 999, features: ["Cheksiz ish e'lonlari", "Shaxsiy menejer", "AI skrining (Cheksiz)"] },
+                { id: 4, name: "Priority Post", price: 49, features: ["E'lonni eng yuqoriga chiqarish", "7 kun davomida"] },
+                { id: 5, name: "AI Screening Pro", price: 149, features: ["Rezyumelarni chuqur AI tahlili"] },
+                { id: 6, name: "Talent Pool Access", price: 199, features: ["Barcha freelancerlar bazasi"] },
+                { id: 7, name: "Custom Assessment", price: 399, features: ["Maxsus testlar yaratish"] },
+                { id: 8, name: "Video Interview AI", price: 249, features: ["Video intervyu tahlili"] },
+                { id: 9, name: "Global Reach", price: 499, features: ["Xalqaro mutaxassislar"] },
+                { id: 10, name: "Dedicated Support", price: 99, features: ["Shaxsiy texnik yordam"] }
+            ],
+            settings: {
+                companyFee: 0.20,    // 20% kompaniyadan
+                freelancerFee: 0.40  // 40% freelancerdan
+            }
+        };
+
+        // Bazani yuklash (agar LocalStorage bo'sh bo'lsa, default yuklanadi)
+        let DB = JSON.parse(localStorage.getItem('hercor_db'));
+        if (!DB) {
+            DB = DEFAULT_DB;
+            saveDB();
+        }
+
+        function saveDB() {
+            localStorage.setItem('hercor_db', JSON.stringify(DB));
+        }
+
+        /* ==========================================================================
+           2. HOLAT (STATE) VA UTILITLAR
+           ========================================================================== */
+        let currentUser = JSON.parse(localStorage.getItem('hercor_user')) || null;
+        let currentView = 'home';
+
+        function showToast(msg, type = 'primary') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${type === 'success' ? '✓' : 'ℹ'}</span> <div>${msg}</div>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
+        }
+
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+        }
+
+        function openModal(html) {
+            document.getElementById('modal-content').innerHTML = html;
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('hercor_user');
+            navigate('home');
+            showToast('Tizimdan chiqdingiz');
+        }
+
+        /* ==========================================================================
+           3. ROUTER VA NAVIGATSIYA
+           ========================================================================== */
+        function navigate(view) {
+            currentView = view;
+            renderNav();
+            const app = document.getElementById('app');
+            app.innerHTML = ''; // Tozalash
+
+            if (view === 'home') renderHome(app);
+            else if (view === 'login') renderLogin(app);
+            else if (view === 'register') renderRegister(app);
+            else if (view === 'freelancer') renderFreelancerDash(app);
+            else if (view === 'company') renderCompanyDash(app);
+            else if (view === 'admin') renderAdminDash(app);
+            else if (view === 'ceo') renderCEODash(app);
+        }
+
+        function renderNav() {
+            const nav = document.getElementById('nav-links');
+            if (!currentUser) {
+                nav.innerHTML = `
+                    <a onclick="navigate('home')">Bosh sahifa</a>
+                    <a onclick="navigate('login')">Kirish</a>
+                    <button class="btn btn-accent" onclick="navigate('register')">Ro'yxatdan o'tish</button>
+                `;
+            } else {
+                nav.innerHTML = `
+                    <a onclick="navigate('home')">Bosh sahifa</a>
+                    <a onclick="navigate('${currentUser.role === 'freelancer' ? 'freelancer' : 'company'}')">Mening Kabinetim</a>
+                    ${currentUser.role === 'admin' ? '<a onclick="navigate(\'admin\')" style="color:var(--danger)">Admin Panel</a>' : ''}
+                    ${currentUser.role === 'ceo' ? '<a onclick="navigate(\'ceo\')" style="color:var(--accent)">CEO Panel</a>' : ''}
+                    <div class="nav-user">
+                        <div class="avatar">${currentUser.avatar}</div>
+                        <span>${currentUser.name}</span>
+                        <button class="btn btn-outline btn-sm" onclick="logout()">Chiqish</button>
+                    </div>
+                `;
+            }
+        }
+
+        /* ==========================================================================
+           4. SAHIFALAR (VIEWS)
+           ========================================================================== */
+
+        // --- BOSH SAHIFA ---
+        function renderHome(app) {
+            app.innerHTML = `
+                <div class="hero">
+                    <span class="badge badge-accent" style="margin-bottom:20px; display:inline-block;">AI-Powered Talent Marketplace</span>
+                    <h1>Inson intellektini AI iqtisodiyoti uchun tashkil qiling</h1>
+                    <p>Hercor — dunyoning eng yaxshi mutaxassislarini sun'iy intellekt loyihalari bilan bog'laydigan platforma. AI yordamida ish toping yoki mutaxassis yollang.</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" style="padding:14px 32px; font-size:16px;" onclick="navigate('register')">Boshlash</button>
+                        <button class="btn btn-outline" style="padding:14px 32px; font-size:16px;" onclick="navigate('login')">Tizimga kirish</button>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <h2 style="margin-bottom: 20px; color: var(--primary);">Ochiq loyihalar</h2>
+                        <div style="display:flex; flex-direction:column; gap:16px;">
+                            ${DB.jobs.filter(j => j.status === 'open').map(job => `
+                                <div class="card" style="padding: 20px; display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <h3 style="font-size: 16px; margin-bottom: 4px;">${job.title}</h3>
+                                        <p style="color: var(--text-muted); font-size: 13px;">${job.desc}</p>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-weight: 800; color: var(--success); margin-bottom:8px;">${formatMoney(job.budget)}</div>
+                                        <button class="btn btn-sm btn-outline" onclick="showToast('Ariza berish uchun tizimga kiring','danger')">Batafsil</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h2 style="margin-bottom: 20px; color: var(--primary);">Top Mutaxassislar (Reyting)</h2>
+                        <div class="card" style="padding:0; overflow:hidden;">
+                            <table>
+                                <tr><th>Mutaxassis</th><th>Daromad</th><th>Reyting</th></tr>
+                                ${DB.users.filter(u => u.role === 'freelancer').sort((a,b) => b.earned - a.earned).slice(0, 5).map(u => `
+                                    <tr>
+                                        <td><b>${u.name}</b><br><small style="color:var(--text-muted)">${u.skills}</small></td>
+                                        <td style="color:var(--success); font-weight:700;">${formatMoney(u.earned)}</td>
+                                        <td>⭐ ${u.rating}</td>
+                                    </tr>
+                                `).join('')}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- LOGIN ---
+        function renderLogin(app) {
+            app.innerHTML = `
+                <div class="card" style="max-width: 420px; margin: 40px auto;">
+                    <h2 style="text-align: center; margin-bottom: 24px;">Tizimga kirish</h2>
+                    <div class="form-group">
+                        <label>Email Manzil</label>
+                        <input type="email" id="log-email" class="form-control" placeholder="admin@hercor.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Parol</label>
+                        <input type="password" id="log-pass" class="form-control" placeholder="123">
+                    </div>
+                    <button class="btn btn-primary btn-block" onclick="doLogin()">Kirish</button>
+                    <p style="text-align: center; margin-top: 20px; font-size: 14px;">
+                        Hisobingiz yo'qmi? <a onclick="navigate('register')" style="color: var(--accent); cursor: pointer; font-weight:600;">Ro'yxatdan o'tish</a>
+                    </p>
+                </div>
+            `;
+        }
+
+        function doLogin() {
+            const email = document.getElementById('log-email').value;
+            const pass = document.getElementById('log-pass').value;
+            const user = DB.users.find(u => u.email === email && u.pass === pass);
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('hercor_user', JSON.stringify(user));
+                showToast(`Xush kelibsiz, ${user.name}!`, 'success');
+                navigate(user.role === 'freelancer' ? 'freelancer' : (user.role === 'company' ? 'company' : (user.role === 'admin' ? 'admin' : 'ceo')));
+            } else {
+                showToast('Email yoki parol noto\'g\'ri!', 'danger');
+            }
+        }
+
+        // --- REGISTER ---
+        function renderRegister(app) {
+            app.innerHTML = `
+                <div class="card" style="max-width: 500px; margin: 40px auto;">
+                    <h2 style="text-align: center; margin-bottom: 24px;">Ro'yxatdan o'tish</h2>
+                    <div class="form-group">
+                        <label>Men kimman?</label>
+                        <select id="reg-role" class="form-control">
+                            <option value="freelancer">Mutaxassis / Freelancer</option>
+                            <option value="company">Kompaniya / Ish beruvchi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>To'liq ism yoki kompaniya nomi</label>
+                        <input type="text" id="reg-name" class="form-control" placeholder="Ismingizni kiriting">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Manzil</label>
+                        <input type="email" id="reg-email" class="form-control" placeholder="example@mail.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Parol</label>
+                        <input type="password" id="reg-pass" class="form-control" placeholder="Parol o'ylab toping">
+                    </div>
+                    <button class="btn btn-accent btn-block" onclick="doRegister()">Ro'yxatdan o'tish</button>
+                </div>
+            `;
+        }
+
+        function doRegister() {
+            const role = document.getElementById('reg-role').value;
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-pass').value;
+
+            if (!name || !email || !pass) return showToast('Barcha maydonlarni to\'ldiring', 'danger');
+            if (DB.users.find(u => u.email === email)) return showToast('Bu email allaqachon band', 'danger');
+
+            const newUser = {
+                id: Date.now(), name, email, pass, role,
+                avatar: name.substring(0, 2).toUpperCase(),
+                ...(role === 'freelancer' ? { skills: "Yangi", earned: 0, jobs: 0, rating: 0, growth: 0 } : {})
+            };
+
+            DB.users.push(newUser);
+            saveDB();
+            currentUser = newUser;
+            localStorage.setItem('hercor_user', JSON.stringify(newUser));
+            showToast('Muvaffaqiyatli ro\'yxatdan o\'tdingiz!', 'success');
+            navigate(role === 'freelancer' ? 'freelancer' : 'company');
+        }
+
+        /* ==========================================================================
+           5. FREELANCER DASHBOARD
+           ========================================================================== */
+        function renderFreelancerDash(app) {
+            if (!currentUser || currentUser.role !== 'freelancer') return navigate('login');
+
+            app.innerHTML = `
+                <div class="dashboard-layout">
+                    <div class="sidebar">
+                        <div class="sidebar-menu">
+                            <a class="active" onclick="loadFreelancerTab('ai')">🤖 AI Suhbat (Ish topish)</a>
+                            <a onclick="loadFreelancerTab('jobs')">💼 Ochiq Ishlar</a>
+                            <a onclick="loadFreelancerTab('profile')">👤 Mening Profilim</a>
+                        </div>
+                    </div>
+                    <div id="freelancer-content"></div>
+                </div>
+            `;
+            loadFreelancerTab('ai');
+        }
+
+        function loadFreelancerTab(tab) {
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const content = document.getElementById('freelancer-content');
+            if (tab === 'ai') {
+                content.innerHTML = `
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div class="chat-header">
+                            <div class="avatar" style="background:var(--accent); color:white;">AI</div>
+                            <div>
+                                <h3 style="font-size: 16px;">Hercor AI Mutaxassisi</h3>
+                                <p style="font-size: 12px; color: var(--success);">● Online</p>
+                            </div>
+                        </div>
+                        <div class="chat-container" style="height: 450px; border: none; border-radius: 0;">
+                            <div class="chat-messages" id="chat-box">
+                                <div class="message ai">Salom ${currentUser.name}! Men Hercor AI yordamchisiman. Ko'nikmalaringizni tahlil qilib, sizga eng mos ishni topishga yordam beraman. Qaysi sohada ishlashni xohlaysiz?</div>
+                            </div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chat-input" class="form-control" placeholder="Xabar yozing..." onkeypress="if(event.key==='Enter') sendAIMsg()">
+                                <button class="btn btn-primary" onclick="sendAIMsg()">Yuborish</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (tab === 'jobs') {
+                content.innerHTML = `
+                    <div class="card">
+                        <h3 class="card-title">Barcha ochiq ishlar</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <tr><th>Loyiha nomi</th><th>Tavsif</th><th>Budjet</th><th>Harakat</th></tr>
+                                ${DB.jobs.filter(j => j.status === 'open').map(j => `
+                                    <tr>
+                                        <td><b>${j.title}</b></td>
+                                        <td>${j.desc}</td>
+                                        <td style="color:var(--success); font-weight:700;">${formatMoney(j.budget)}</td>
+                                        <td><button class="btn btn-sm btn-accent" onclick="applyJob(${j.id})">Ariza berish</button></td>
+                                    </tr>
+                                `).join('')}
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else if (tab === 'profile') {
+                content.innerHTML = `
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3 class="card-title">Shaxsiy Ma'lumotlar</h3>
+                            <div style="display:flex; align-items:center; gap:20px; margin-bottom:20px;">
+                                <div class="avatar" style="width:80px; height:80px; font-size:32px;">${currentUser.avatar}</div>
+                                <div>
+                                    <h2 style="margin-bottom:4px;">${currentUser.name}</h2>
+                                    <p style="color:var(--text-muted);">${currentUser.email}</p>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Ko'nikmalar (Skills)</label>
+                                <input type="text" class="form-control" value="${currentUser.skills}" readonly>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3 class="card-title">Statistika</h3>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                                <div style="background:var(--bg-main); padding:16px; border-radius:8px; text-align:center;">
+                                    <div style="font-size:24px; font-weight:800; color:var(--success);">${formatMoney(currentUser.earned)}</div>
+                                    <div style="font-size:12px; color:var(--text-muted);">Umumiy Daromad</div>
+                                </div>
+                                <div style="background:var(--bg-main); padding:16px; border-radius:8px; text-align:center;">
+                                    <div style="font-size:24px; font-weight:800; color:var(--primary);">${currentUser.jobs}</div>
+                                    <div style="font-size:12px; color:var(--text-muted);">Ishlar Soni</div>
+                                </div>
+                                <div style="background:var(--bg-main); padding:16px; border-radius:8px; text-align:center;">
+                                    <div style="font-size:24px; font-weight:800; color:var(--warning);">⭐ ${currentUser.rating}</div>
+                                    <div style="font-size:12px; color:var(--text-muted);">Reyting</div>
+                                </div>
+                                <div style="background:var(--bg-main); padding:16px; border-radius:8px; text-align:center;">
+                                    <div style="font-size:24px; font-weight:800; color:var(--accent);">+${currentUser.growth}%</div>
+                                    <div style="font-size:12px; color:var(--text-muted);">O'sish</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function sendAIMsg() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div class="message user">${msg}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Sun'iy intellekt simulyatsiyasi
+            setTimeout(() => {
+                let reply = "";
+                const lower = msg.toLowerCase();
+                
+                if (lower.includes("ish") || lower.includes("top") || lower.includes("kompaniya")) {
+                    const job = DB.jobs.find(j => j.status === 'open');
+                    reply = `Sizning ko'nikmalaringizni tahlil qildim. Menga <b>${job.title}</b> loyihasi juda mos keladi (Budjet: ${formatMoney(job.budget)}). Kompaniya: <b>${DB.users.find(u => u.id === job.companyId).name}</b>. Ariza yuborishni xohlaysizmi?`;
+                } else if (lower.includes("salom")) {
+                    reply = `Salom! Sizga qanday yordam bera olaman? Rezyumingizni yoki qiziqishingizni yozishingiz mumkin.`;
+                } else if (lower.includes("pul") || lower.includes("to'lov")) {
+                    reply = `Hercor tizimida to'lovlar xavfsiz amalga oshiriladi. Kompaniya to'lovni amalga oshirgach, admin tasdiqlaydi va mablag' sizning hisobingizga tushadi (komissiya 40%).`;
+                } else {
+                    reply = `Tushunarli. Sizning so'rovingiz tahlil qilindi. Yana biror narsa bilan yordam bera olamanmi?`;
+                }
+
+                chatBox.innerHTML += `<div class="message ai">${reply}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1200);
+        }
+
+        function applyJob(jobId) {
+            showToast('AI rezyumingizni tahlil qilib, arizani kompaniyaga yubordi!', 'success');
+        }
+
+        /* ==========================================================================
+           6. KOMPANIYA DASHBOARD
+           ========================================================================== */
+        function renderCompanyDash(app) {
+            if (!currentUser || currentUser.role !== 'company') return navigate('login');
+
+            app.innerHTML = `
+                <div class="dashboard-layout">
+                    <div class="sidebar">
+                        <div class="sidebar-menu">
+                            <a class="active" onclick="loadCompanyTab('jobs')">📋 Mening Ishlarim</a>
+                            <a onclick="loadCompanyTab('post')">➕ Yangi Ish Yaratish</a>
+                            <a onclick="loadCompanyTab('plans')">💎 10 Xil Tariflar</a>
+                            <a onclick="loadCompanyTab('billing')">💳 To'lovlar Tarixi</a>
+                        </div>
+                    </div>
+                    <div id="company-content"></div>
+                </div>
+            `;
+            loadCompanyTab('jobs');
+        }
+
+        function loadCompanyTab(tab) {
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const content = document.getElementById('company-content');
+            if (tab === 'jobs') {
+                content.innerHTML = `
+                    <div class="card">
+                        <h3 class="card-title">Mening e'lon qilgan ishlarim</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <tr><th>Loyiha</th><th>Budjet</th><th>Holat</th><th>Harakat</th></tr>
+                                ${DB.jobs.filter(j => j.companyId === currentUser.id).map(j => `
+                                    <tr>
+                                        <td><b>${j.title}</b><br><small>${j.desc}</small></td>
+                                        <td>${formatMoney(j.budget)}</td>
+                                        <td><span class="badge ${j.status === 'open' ? 'badge-primary' : 'badge-success'}">${j.status}</span></td>
+                                        <td>${j.status === 'open' ? `<button class="btn btn-sm btn-success" onclick="payForJob(${j.id}, ${j.budget})">To'lov qilish (Yollash)</button>` : 'Yollangan'}</td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Hozircha ishlar yo\'q</td></tr>'}
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else if (tab === 'post') {
+                content.innerHTML = `
+                    <div class="card" style="max-width: 600px;">
+                        <h3 class="card-title">Yangi ish e'loni yaratish</h3>
+                        <div class="form-group">
+                            <label>Loyiha nomi</label>
+                            <input type="text" id="new-job-title" class="form-control" placeholder="Masalan: AI Model Trainer">
+                        </div>
+                        <div class="form-group">
+                            <label>Loyiha tavsifi</label>
+                            <textarea id="new-job-desc" class="form-control" rows="4" placeholder="Vazifalarni batafsil yozing..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Budjet ($ soatiga yoki umumiy)</label>
+                            <input type="number" id="new-job-budget" class="form-control" placeholder="500">
+                        </div>
+                        <button class="btn btn-primary" onclick="postJob()">E'lon qilish</button>
+                    </div>
+                `;
+            } else if (tab === 'plans') {
+                content.innerHTML = `
+                    <h3 style="margin-bottom:20px; color:var(--primary);">Kompaniyalar uchun 10 xil pullik xizmatlar</h3>
+                    <div class="grid-2">
+                        ${DB.plans.map(p => `
+                            <div class="card plan-card">
+                                <h4 style="font-size:16px; color:var(--text-muted);">${p.name}</h4>
+                                <div class="plan-price">${formatMoney(p.price)}</div>
+                                <ul class="plan-features">
+                                    ${p.features.map(f => `<li>${f}</li>`).join('')}
+                                </ul>
+                                <button class="btn btn-accent btn-block" onclick="buyPlan(${p.price}, '${p.name}')">Sotib olish</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (tab === 'billing') {
+                content.innerHTML = `
+                    <div class="card">
+                        <h3 class="card-title">To'lovlar va Cheklar Tarixi</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <tr><th>Summa</th><th>Tavsif</th><th>Sana</th><th>Holat</th></tr>
+                                ${DB.payments.filter(p => p.userId === currentUser.id).map(p => `
+                                    <tr>
+                                        <td style="font-weight:700;">${formatMoney(p.amount)}</td>
+                                        <td>${p.desc}</td>
+                                        <td>${p.date}</td>
+                                        <td><span class="badge ${p.status === 'pending' ? 'badge-pending' : (p.status === 'approved' ? 'badge-success' : 'badge-danger')}">${p.status}</span></td>
+                                    </tr>
+                                `).join('') || '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Hozircha to\'lovlar yo\'q</td></tr>'}
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function postJob() {
+            const title = document.getElementById('new-job-title').value;
+            const desc = document.getElementById('new-job-desc').value;
+            const budget = document.getElementById('new-job-budget').value;
+
+            if (!title || !desc || !budget) return showToast('Barcha maydonlarni to\'ldiring', 'danger');
+
+            DB.jobs.push({
+                id: Date.now(), companyId: currentUser.id, title, desc, budget: parseFloat(budget), status: 'open', assignedTo: null
+            });
+            saveDB();
+            showToast('Ish e\'loni muvaffaqiyatli yaratildi!', 'success');
+            loadCompanyTab('jobs');
+        }
+
+        function buyPlan(price, name) {
+            openModal(`
+                <h3 style="margin-bottom:16px;">${name} xarid qilish</h3>
+                <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">To'lovni amalga oshirish uchun quyidagi kartaga o'tkazma qiling va chekni yuklang. Admin tasdiqlagach xizmat faollashadi.</p>
+                <div style="background:var(--bg-main); padding:16px; border-radius:8px; margin-bottom:20px; text-align:center;">
+                    <div style="font-size:12px; color:var(--text-muted);">Karta raqami (Admin o'qiydi)</div>
+                    <div style="font-size:20px; font-weight:800; letter-spacing:2px;">8600 1234 5678 9012</div>
+                    <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Summa: ${formatMoney(price)}</div>
+                </div>
+                <div class="form-group">
+                    <label>Chek faylini yuklang (Rasm yoki PDF)</label>
+                    <input type="file" class="form-control" id="receipt-file">
+                </div>
+                <div style="display:flex; gap:12px;">
+                    <button class="btn btn-success" style="flex:1;" onclick="submitPayment(${price}, '${name}')">To'lovni yuborish</button>
+                    <button class="btn btn-outline" onclick="closeModal()">Bekor qilish</button>
+                </div>
+            `);
+        }
+
+        function payForJob(jobId, budget) {
+            openModal(`
+                <h3 style="margin-bottom:16px;">Mutaxassisni yollash uchun to'lov</h3>
+                <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Siz ushbu loyiha uchun <b>${formatMoney(budget)}</b> to'lov qilmoqchisiz. Platforma 20% komissiya oladi. Qolgan mablag' mutaxassisga o'tadi.</p>
+                <div class="form-group">
+                    <label>Chekni yuklang (Tasdiqlash uchun)</label>
+                    <input type="file" class="form-control">
+                </div>
+                <button class="btn btn-primary btn-block" onclick="submitPayment(${budget}, 'Job to\\'lovi (ID:${jobId})')">Chekni yuborish</button>
+            `);
+        }
+
+        function submitPayment(amount, desc) {
+            const newPayment = {
+                id: Date.now(),
+                userId: currentUser.id,
+                amount: amount,
+                type: desc.includes('Plan') ? 'plan' : 'job',
+                desc: desc,
+                receipt: 'uploaded_receipt.png',
+                status: 'pending',
+                date: new Date().toISOString().split('T')[0]
+            };
+            DB.payments.push(newPayment);
+            saveDB();
+            closeModal();
+            showToast('Chek adminga yuborildi. Tasdiqlanishi kutilmoqda.', 'success');
+            if (currentView === 'company') loadCompanyTab('billing');
+        }
+
+        /* ==========================================================================
+           7. ADMIN DASHBOARD
+           ========================================================================== */
+        function renderAdminDash(app) {
+            if (!currentUser || currentUser.role !== 'admin') return navigate('login');
+
+            const pendingPayments = DB.payments.filter(p => p.status === 'pending');
+            const totalRevenue = DB.payments.filter(p => p.status === 'approved').reduce((a, b) => a + b.amount, 0);
+
+            app.innerHTML = `
+                <div class="card" style="margin-bottom: 24px;">
+                    <h2 style="color: var(--danger);">Admin Boshqaruv Paneli</h2>
+                    <p style="color: var(--text-muted);">Tizimning barcha moliyaviy va foydalanuvchilar boshqaruvi.</p>
+                </div>
+
+                <div class="grid-3" style="margin-bottom: 24px;">
+                    <div class="card" style="text-align:center; border-top: 4px solid var(--warning);">
+                        <h4 style="color:var(--text-muted);">Kutilayotgan To'lovlar</h4>
+                        <div style="font-size:32px; font-weight:800;">${pendingPayments.length} ta</div>
+                    </div>
+                    <div class="card" style="text-align:center; border-top: 4px solid var(--success);">
+                        <h4 style="color:var(--text-muted);">Umumiy Tushum (Tasdiqlangan)</h4>
+                        <div style="font-size:32px; font-weight:800;">${formatMoney(totalRevenue)}</div>
+                    </div>
+                    <div class="card" style="text-align:center; border-top: 4px solid var(--primary);">
+                        <h4 style="color:var(--text-muted);">Foydalanuvchilar</h4>
+                        <div style="font-size:32px; font-weight:800;">${DB.users.length} ta</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Kutilayotgan Cheklarni Tasdiqlash</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <tr><th>Foydalanuvchi</th><th>Summa</th><th>Tavsif</th><th>Sana</th><th>Harakat</th></tr>
+                            ${pendingPayments.map(p => {
+                                const u = DB.users.find(x => x.id === p.userId);
+                                return `
+                                    <tr>
+                                        <td><b>${u ? u.name : 'Noma\\'lum'}</b><br><small>${u ? u.role : ''}</small></td>
+                                        <td style="color:var(--success); font-weight:700;">${formatMoney(p.amount)}</td>
+                                        <td>${p.desc}</td>
+                                        <td>${p.date}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success" onclick="approvePayment(${p.id})">Tasdiqlash</button>
+                                            <button class="btn btn-sm btn-danger" onclick="rejectPayment(${p.id})">Rad etish</button>
+                                        </td>
+                                    </tr>
+                                `;
+                            }).join('') || '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">Kutilayotgan to\'lovlar yo\'q</td></tr>'}
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function approvePayment(paymentId) {
+            const payment = DB.payments.find(p => p.id === paymentId);
+            if (!payment) return;
+
+            payment.status = 'approved';
+            
+            // MOLIYAVIY HISOB-KITOB MANTIQI (20% va 40%)
+            const amount = payment.amount;
+            const companyFeePercent = DB.settings.companyFee;       // 0.20
+            const freelancerFeePercent = DB.settings.freelancerFee; // 0.40
+
+            // 1. Platforma kompaniyadan 20% oladi
+            const platformFromCompany = amount * companyFeePercent;
+            const remainingAfterCompany = amount - platformFromCompany;
+
+            // 2. Qolgan puldan platforma freelancerdan 40% oladi
+            const platformFromFreelancer = remainingAfterCompany * freelancerFeePercent;
+            const finalToFreelancer = remainingAfterCompany - platformFromFreelancer;
+
+            const totalPlatformProfit = platformFromCompany + platformFromFreelancer;
+
+            // Agar bu ish to'lovi bo'lsa, mutaxassisga pul tashlash simulyatsiyasi
+            if (payment.type === 'job') {
+                // Mock: ID si 3 bo'lgan freelancerga pul tashlaymiz
+                const freelancer = DB.users.find(u => u.role === 'freelancer');
+                if (freelancer) {
+                    freelancer.earned += finalToFreelancer;
+                    freelancer.jobs += 1;
+                }
+            }
+
+            saveDB();
+            
+            showToast(`Tasdiqlandi! Kompaniyadan: ${formatMoney(platformFromCompany)}, Freelancerdan: ${formatMoney(platformFromFreelancer)}. Freelancerga o'tdi: ${formatMoney(finalToFreelancer)}`, 'success');
+            
+            renderAdminDash(document.getElementById('app'));
+        }
+
+        function rejectPayment(paymentId) {
+            const payment = DB.payments.find(p => p.id === paymentId);
+            if (payment) {
+                payment.status = 'rejected';
+                saveDB();
+                showToast('To\'lov rad etildi', 'danger');
+                renderAdminDash(document.getElementById('app'));
+            }
+        }
+
+        /* ==========================================================================
+           8. CEO DASHBOARD
+           ========================================================================== */
+        function renderCEODash(app) {
+            if (!currentUser || currentUser.role !== 'ceo') return navigate('login');
+
+            const totalRevenue = DB.payments.filter(p => p.status === 'approved').reduce((a, b) => a + b.amount, 0);
+            const totalFreelancers = DB.users.filter(u => u.role === 'freelancer').length;
+            const totalCompanies = DB.users.filter(u => u.role === 'company').length;
+
+            app.innerHTML = `
+                <div class="card" style="background: var(--primary); color: white; margin-bottom: 24px;">
+                    <h2 style="color: white;">CEO Global Boshqaruv</h2>
+                    <p style="color: #cbd5e1;">Platforma umumiy statistikasi va tizim sozlamalari.</p>
+                </div>
+
+                <div class="grid-4" style="margin-bottom: 24px;">
+                    <div class="card" style="text-align:center;">
+                        <h4 style="color:var(--text-muted);">Umumiy Tushum</h4>
+                        <div style="font-size:28px; font-weight:800; color:var(--success);">${formatMoney(totalRevenue)}</div>
+                    </div>
+                    <div class="card" style="text-align:center;">
+                        <h4 style="color:var(--text-muted);">Freelancerlar</h4>
+                        <div style="font-size:28px; font-weight:800; color:var(--primary);">${totalFreelancers}</div>
+                    </div>
+                    <div class="card" style="text-align:center;">
+                        <h4 style="color:var(--text-muted);">Kompaniyalar</h4>
+                        <div style="font-size:28px; font-weight:800; color:var(--accent);">${totalCompanies}</div>
+                    </div>
+                    <div class="card" style="text-align:center;">
+                        <h4 style="color:var(--text-muted);">Faol Ishlar</h4>
+                        <div style="font-size:28px; font-weight:800; color:var(--warning);">${DB.jobs.length}</div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 class="card-title">Tizim Komissiyalari (Sozlash)</h3>
+                        <div class="form-group" style="margin-top:20px;">
+                            <label>Kompaniyadan olinadigan komissiya (%)</label>
+                            <input type="number" class="form-control" value="${DB.settings.companyFee * 100}" onchange="updateFee('companyFee', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Freelancerdan olinadigan komissiya (%)</label>
+                            <input type="number" class="form-control" value="${DB.settings.freelancerFee * 100}" onchange="updateFee('freelancerFee', this.value)">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="card-title">Tizimni Boshqarish</h3>
+                        <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Barcha ma'lumotlarni noldan boshlash yoki zaxira nusxasini olish.</p>
+                        <button class="btn btn-outline btn-block" style="margin-bottom:10px;" onclick="downloadBackup()">Ma'lumotlar bazasini yuklash (JSON)</button>
+                        <button class="btn btn-danger btn-block" onclick="resetSystem()">Tizimni tozalash (Reset)</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateFee(key, val) {
+            DB.settings[key] = parseFloat(val) / 100;
+            saveDB();
+            showToast('Komissiya sozlamalari yangilandi', 'success');
+        }
+
+        function downloadBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(DB));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", "hercor_backup.json");
+            dlAnchorElem.click();
+        }
+
+        function resetSystem() {
+            if(confirm("Haqiqatan ham barcha ma'lumotlarni o'chirib, tizimni noldan boshlamoqchimisiz?")) {
+                localStorage.removeItem('hercor_db');
+                localStorage.removeItem('hercor_user');
+                location.reload();
+            }
+        }
+
+        /* ==========================================================================
+           9. ISHGA TUSHIRISH
+           ========================================================================== */
+        window.onload = () => {
+            // Agar foydalanuvchi oldin kirgan bo'lsa, o'sha sahifani ochish
+            if (currentUser) {
+                navigate(currentUser.role === 'freelancer' ? 'freelancer' : (currentUser.role === 'company' ? 'company' : (currentUser.role === 'admin' ? 'admin' : 'ceo')));
+            } else {
+                navigate('home');
+            }
+        };
+    </script>
+</body>
+</html>
